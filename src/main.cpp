@@ -82,9 +82,11 @@ void loop()
         break;
       case 'B':
         currentMode = 'B';
+        keypad = modeA;
         break;
       case 'C':
         currentMode = 'C';
+        keypad = modeA;
         break;
       case 'D':
         currentMode = 'D';
