@@ -1,3 +1,4 @@
+#include "header.h"
 #include <Arduino.h>
 #include <Keypad.h>
 #include <Wire.h>
@@ -37,10 +38,6 @@ Keypad modeA = Keypad(makeKeymap(keys), pin_rows, pin_column, ROW_NUM, COLUMN_NU
 Keypad modeD = Keypad(makeKeymap(numKeys), pin_rows, pin_column, ROW_NUM, COLUMN_NUM);
 Keypad keypad = modeA; // default mode
 
-void displayMode(char mode);
-void displayConnectedMessage();
-void sendKey(char key);
-
 void setup()
 {
   Serial.begin(9600);
@@ -67,7 +64,8 @@ void loop()
 {
   if (bleKeyboard.isConnected())
   {
-    if(!displayedConnectedMessage){
+    if (!displayedConnectedMessage)
+    {
       displayConnectedMessage();
       displayedConnectedMessage = true;
       delay(1000);
@@ -93,12 +91,25 @@ void loop()
         keypad = modeD;
         break;
       default:
+        if (currentMode == 'B')
+        {
+          sendCtrlAltShiftKey(key);
+          break;
+        }
+        if (currentMode == 'C')
+        {
+          sendCtrlAltKey(key);
+          break;
+        }
         sendKey(key);
         break;
       }
     }
-  } else {
-    if(displayedConnectedMessage){
+  }
+  else
+  {
+    if (displayedConnectedMessage)
+    {
       displayedConnectedMessage = false;
       oled.clearDisplay();
       oled.setTextSize(1);
@@ -134,4 +145,21 @@ void sendKey(char key)
 {
   bleKeyboard.write(key);
   delay(100);
+}
+void sendCtrlAltShiftKey(char key)
+{
+  bleKeyboard.press(KEY_LEFT_CTRL);
+  bleKeyboard.press(KEY_LEFT_ALT);
+  bleKeyboard.press(KEY_LEFT_SHIFT);
+  bleKeyboard.press(key);
+  delay(100);
+  bleKeyboard.releaseAll();
+}
+void sendCtrlAltKey(char key)
+{
+  bleKeyboard.press(KEY_LEFT_CTRL);
+  bleKeyboard.press(KEY_LEFT_ALT);
+  bleKeyboard.press(key);
+  delay(100);
+  bleKeyboard.releaseAll();
 }
